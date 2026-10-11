@@ -975,7 +975,7 @@ public class Mole extends JFrame {
         }
 
         private void drawCell(Graphics2D g, int idx, int x, int y, int cw, int ch) {
-            int holeW = (int) (cw * 0.62);
+            int holeW = (int) Math.min(cw * 0.62, ch * 0.70);
             int holeH = (int) (holeW * 0.34);
             int hx = x + (cw - holeW) / 2;
             int hy = y + (int) (ch * 0.64);
@@ -993,9 +993,10 @@ public class Mole extends JFrame {
                 double p = progress(s);
                 if (p > 0) {
                     Shape old = g.getClip();
-                    g.clipRect(x, y, cw, lineY - y);
-                    drawMole(g, s, hx, holeW, lineY, p);
-                    g.setClip(old);
+// Clip to both the cell area AND the board's drawable area
+                   g.clipRect(x, 0, cw, lineY);   // everything above the middle of the hole
+                   drawMole(g, s, hx, holeW, lineY, p);
+                   g.setClip(old);
                 }
             }
 
@@ -1041,7 +1042,8 @@ public class Mole extends JFrame {
             Color body = s.type == GOLDEN ? new Color(245, 190, 40) : new Color(139, 94, 52);
             Color belly = s.type == GOLDEN ? new Color(255, 232, 140) : new Color(196, 150, 100);
             Color dark = body.darker();
-            int bodyH = (int) (mw * 1.4);
+            int availableHeight = lineY - top;
+            int bodyH = Math.min((int) (mw * 1.4), availableHeight);
 
             // ears
             int er = mw / 5;
